@@ -3,48 +3,26 @@ import psutil
 
 import time
 '''
-# Function to send a notification
-def send_notification(message):
-    notification.notify(
-        title='Test Notification',
-        message=message,
-        app_name='TestApp',
-        timeout=10  # Notification timeout in seconds
-    )
+Hi. Recently, I started replaying Batman Arkham City on a Windows Laptop after being an Apple Mac Boi for so many years. However, I noticed the game has an issue. After a while, it begins to leak memory usage. Topping out at around 3GB of memory before I would get an error telling me the game is out of memory and then crashing.
 
-# Send a test notification with the current time
-current_time = time.strftime("%Y-%m-%d %H:%M:%S")
-send_notification(f"Test notification - Current time: {current_time}")
-
-# Function to get a list of processes containing a specific string
-def get_processes_by_name(name):
-    processes = []
-    for process in psutil.process_iter(['pid', 'name']):
-        if name.lower() in process.info['name'].lower():
-            processes.append(process)
-    return processes
-
-# Get a list of processes containing the string "steam"
-steam_processes = get_processes_by_name("steam")
-
-# Display process details
-for process in steam_processes:
-    print("------------------------------")
-    print(f"Process Name: {process.info['name']}")
-    print(f"PID: {process.info['pid']}")
-    print(f"Memory Usage: {process.memory_info().rss / (1024 ** 2):.2f} MB")
-    print("------------------------------")
+My solution was to make a Python Script that would let me know when the game takes up 2.8GB of memory so I could safely quit out early. Originally, I wanted to make this script in Powershell as I figured that would take up less resources and overhead than a Python script. I was wrong and found it really difficult to write a good Powershell script (even with ChatGPT's help). So I went back to what I knew with Python.
 '''
+
+#Return current date and time
+def get_current_time():
+    return time.strftime("%Y-%m-%d %H:%M:%S")
+
+
+#This function sends a desktop notification letting me know Arkham City is close to crashing.
 def send_notification(message):
-    current_time = time.strftime("%Y-%m-%d %H:%M:%S")
     notification.notify(
-        title='Test Notification about memory',
-        message=f'{message} and current time is {current_time}',
+        title='Arkham City Memory Alert',
+        message=f'{message} and current time is {get_current_time()}',
         app_name='TestApp',
         timeout=10  # Notification timeout in seconds
     )
 
-# Function to get a list of processes containing a specific string
+# Function to get a list of processes containing a specific string. I use this to get info on Arkham City's process
 def get_processes_by_name(name):
     processes = []
     for process in psutil.process_iter(['pid', 'name']):
@@ -52,38 +30,35 @@ def get_processes_by_name(name):
             processes.append(process)
     return processes
 
+#This function outputs info regarding the Arkham City Process to the terminal.
 def display_process_details(process):
-    current_time = time.strftime("%Y-%m-%d %H:%M:%S")
     print("------------------------------")
     print(f"Process Name: {process.info['name']}")
     print(f"PID: {process.info['pid']}")
     print(f"Memory Usage: {process.memory_info().rss / (1024**2):.2f} MB")
-    print(f"current time is {current_time}")
+    print(f"current time is {get_current_time()}")
     print("------------------------------")
-'''
-while True:
-    time.sleep(1)
-    # Get a list of processes containing the string "steam"
-    steam_processes = get_processes_by_name("steam")
-    for process in steam_processes:
-        display_process_details(process)
-        current_memory = process.memory_info().rss / (1024**2)
-        if current_memory > 500:
-            send_notification(f"{process.name()} is taking up {current_memory}")
-'''
+
 while True:
 
     # Get a list of processes containing the string "batmanAC"
     batman_processes = get_processes_by_name("batmanAC")
+    #Check if the process is running
     print(f"length of process is {len(batman_processes)}")
     if batman_processes:
+        #If Arkham City is running:
         for process in batman_processes:
+            #Print info regarding the process to the terminal:
             display_process_details(process)
+            #Get the current amount of memory being used
             current_memory = process.memory_info().rss / (1024 ** 2)
-            time.sleep(120)
+            #if the game is taking up 2.8GB of memory, send a notification. Otherwise, check again in 2 minutes
             if current_memory > 2800:
                 send_notification(f"{process.name()} is taking up {current_memory}")
+            #Sleep for 2 minutes
+            time.sleep(120)
+
     else:
-        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        print(f"No Batman Process found at {current_time}")
-        time.sleep(10)
+        #If Batman Arkham City isn't running, check again in 5 seconds
+        print(f"No Batman Process found at {get_current_time()}. Checking again in 5 seconds.")
+        time.sleep(5)
