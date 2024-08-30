@@ -2,11 +2,6 @@ from plyer import notification
 import psutil
 
 import time
-'''
-Hi. Recently, I started replaying Batman Arkham City on a Windows Laptop after being an Apple Mac Boi for so many years. However, I noticed the game has an issue. After a while, it begins to leak memory usage. Topping out at around 3GB of memory before I would get an error telling me the game is out of memory and then crashing.
-
-My solution was to make a Python Script that would let me know when the game takes up 2.8GB of memory so I could safely quit out early. Originally, I wanted to make this script in Powershell as I figured that would take up less resources and overhead than a Python script. I was wrong and found it really difficult to write a good Powershell script (even with ChatGPT's help). So I went back to what I knew with Python.
-'''
 
 #Return current date and time
 def get_current_time():
